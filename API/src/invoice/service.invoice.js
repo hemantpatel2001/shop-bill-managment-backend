@@ -1,17 +1,27 @@
-// const invoice = require ("./model.invoice")
-// const invoiceService = {}
+const Invoice = require("./model.invoice"); // Adjust the path as per your project structure
+const invoiceService = {};
 
-// //search details by mobile number.
-// invoiceService.searchByMobile = async (mobile) => {
-//     return await invoice.find({mobile})
-// }
-// // Fetch a single invoice by ID
-// invoiceService.getInvoiceById = async (invoiceId) => {
-//     return await invoice.findOne({ invoiceId });
-//   };
+invoiceService.createInvoice = async ({ customerId, invoiceNo, date, paidAmount, products }) => {
+  // Create and save the invoice
+  const create = await Invoice.create({
+    customerId,
+    invoiceNo,
+    date,
+    paidAmount,
+    products,
+  });
+
+  return create;
+};
+//get all invoice
+invoiceService.getAllInvoices = async () => {
+  const invoices = await Invoice.find()
+    .populate("customerId") 
+    .populate("products.productId"); 
+
+  return invoices;
+};
+
   
-//   // Delete an invoice by ID
-//   invoiceService.deleteInvoiceById = async (invoiceId) => {
-//     return await invoice.findOneAndDelete({ invoiceId });
-//   };
-// module.exports = invoiceService
+
+module.exports = invoiceService;

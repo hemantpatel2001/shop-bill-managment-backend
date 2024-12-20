@@ -1,31 +1,32 @@
 const express = require("express");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-// CORS options to allow requests from frontend running on port 5500
-// const corsOptions = {
-//     origin: 'http://localhost:5500', // Allow only requests from this origin
-//     methods: 'GET,POST', // Allow only these methods
-//     allowedHeaders: ['Content-Type', 'Authorization'] // Allow only these headers
-// };
-// app.use(cors(corsOptions));
+// Load environment variables
+dotenv.config();
 
-const app = express()
-const bodyparser = require("body-parser")
-app.use(bodyparser.json())
+const app = express();
 
-const cors = require('cors');
+// Middleware
+app.use(bodyParser.json()); // Parse JSON requests
+
+// CORS Configuration
 const corsOptions = {
-  origin: 'http://localhost:5173', 
-  methods: 'GET,PUT,PATCH,POST,DELETE', 
-  allowedHeaders: 'Content-Type, Authorization', 
-  credentials: true, 
+  origin: ["http://localhost:5173"], // Allowed frontend origins
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+  credentials: true, // Allow cookies and authentication headers
 };
 
 app.use(cors(corsOptions));
 
-const route = require("./route")
-app.use ("/",route)
+// Database Connection
+require("./database"); // Ensure this file sets up your database connection
 
-require("./database")
+// Routes
+const route = require("./route"); // Import route file
+app.use("/", route);
 
-module.exports = app
+// Export the app
+module.exports = app;

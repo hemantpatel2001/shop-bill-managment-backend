@@ -1,15 +1,9 @@
-// const express = require("express")
-// const invoiceController = require("./controller.invoice");
-// const router = require("../customer/route.customer");
+const express = require("express");
+const invoiceController = require("./controller.invoice");
+const router = express.Router(); // Correctly initialize a new router instance
 
-// //Routes for crud operation.
-// router.get("/searchInvoiceByMobile/:mobile",invoiceController.searchByMobile)
+// Routes for CRUD operations
+router.post("/createInvoice", invoiceController.createInvoice);
+router.get("/getAllInvoice", invoiceController.getAllInvoices);
 
-// // Get an invoice by ID
-// router.get('/invoices/:invoiceId', invoiceController.getInvoiceById);
-
-// // Delete an invoice by ID
-// router.delete('/invoices/:invoiceId', invoiceController.deleteInvoiceById);
-
-
-// module.exports = router;
+module.exports = router;

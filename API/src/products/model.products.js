@@ -1,8 +1,14 @@
+const { ref, required } = require("joi");
 const mongoose = require("mongoose");
+const { type } = require("../vendorschemas/validation.vendorschemas");
 const productSchema = new mongoose.Schema({
   productName: {
     type: String,
     required: true,
+  },
+  costPrice:{
+    type:String,
+    required:true
   },
   productCode: {
     type: String,
@@ -22,6 +28,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  categoryId:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"category",
+    required:true
+  }
 });
 
-module.exports = ("products", productSchema);
+module.exports =mongoose.model ("products", productSchema);

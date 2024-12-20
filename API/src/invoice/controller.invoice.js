@@ -1,51 +1,76 @@
-// const invoiceService = require ("./service.invoice")
-// const invoiceController = {}
-// // Search invoices by mobile number
-// invoiceController.searchByMobile = async (req, res) => {
-//   const { mobile } = req.params;
-//   console.log(mobile)
+const Invoice = require("./model.invoice"); 
+const invoiceController={}
+// Create invoice
+invoiceController.createInvoice = async (req, res) => {
+  try {
+    const { customerId, invoiceNo, date, paidAmount, products } = req.body;
 
-//   try {
-//     const invoices = await invoiceService.searchByMobile(mobile);
-//     if (invoices.length === 0) {
-//       return res.send({ status: 'ERROR', message: 'No invoices found for this mobile number', data : invoices});
-//     }
-//     res.send({ status: 'OK', data: invoices });
-//   } catch (error) {
-//     res.send({ status: 'ERROR', message: 'Server error', error });
-//   }
-// }
+    // Validate required fields
+    if (!customerId || !invoiceNo || !date || !paidAmount || !products) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
 
-// // Get invoice by ID
-// invoiceController.getInvoiceById = async (req, res) => {
-//   const { invoiceId } = req.params;
+    // Create and save the new invoice
+    const newInvoice = new Invoice({
+      customerId,
+      invoiceNo,
+      date,
+      paidAmount,
+      products,
+    });
 
-//   try {
-//     const invoice = await invoiceService.getInvoiceById(invoiceId);
-//     if (!invoice) {
-//       return res.send({ status: 'ERROR', message: 'Invoice not found' });
-//     }
-//     res.send({ status: 'OK', data: invoice });
-//   } catch (error) {
-//     res.send({ status: 'ERROR', message: 'Server error', error });
-//   }
-// };
+    await newInvoice.save();
 
-// // Delete invoice by ID
-// invoiceController.deleteInvoiceById = async (req, res) => {
-//   const { invoiceId } = req.params;
+    res.status(201).json({ msg: "Invoice added successfully",   status: true ,invoice: newInvoice });
+  } catch (error) {
+    res.status(500).json({ msg: "Server error",  status: false,error: error.message });
+  }
+};
 
-//   try {
-//     const deletedInvoice = await invoiceService.deleteInvoiceById(invoiceId);
-//     if (!deletedInvoice) {
-//       return send({ status: 'ERROR', message: 'Invoice not found' });
-//     }
-//     res.send({ status: 'OK', message: 'Invoice deleted successfully' });
-//   } catch (error) {
-//     res.send({ status: 'ERROR', message: 'Server error', error });
-//   }
-// };
+// Get all invoices with customer and product details, including total and due amounts
+invoiceController.getAllInvoices = async (req, res) => {
+  try {
+    const invoices = await Invoice.find()
+      .populate("customerId") // Fetch all customer data
+      .populate("products.productId"); // Fetch all product data
+
+    // Add total amount and due amount for each invoice
+    const formattedInvoices = invoices.map(invoice => {
+      // Calculate total amount for all products in the invoice
+      const totalAmount = invoice.products.reduce((sum, product) => {
+        const productPrice = product.productId?.price || 0;
+        return sum + productPrice * product.quantity;
+      }, 0);
+
+      // Calculate due amount
+      const dueAmount = totalAmount - invoice.paidAmount;
+
+      return {
+        ...invoice._doc,
+        totalAmount, 
+        dueAmount,   
+        products: invoice.products.map(product => ({
+          ...product._doc,
+          totalAmount: product.productId?.sellingPrice * product.quantity, // Total for each product
+        })),
+      };
+      
+    });
+
+    res.status(200).json({
+      msg: "Invoices fetched successfully",
+      status: true,
+      invoices: formattedInvoices,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Server error",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
   
 
-
-// module.exports = invoiceController
+module.exports = invoiceController;

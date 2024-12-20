@@ -12,8 +12,18 @@ router.use("/customer",customerRoute)
 const productRoute = require("./API/src/products/route.products")
 router.use("/products", productRoute)
 
+const categoryRoute=require("./API/src/category/route.category")
+
+router.use("/category",categoryRoute)
+
+const vendorRoute =require("./API/src/vendorschemas/route.vendorschemas")
+router.use("/vendorschemas", vendorRoute)
+
 // //invoice route
-// const invoiceRoute = require("./API/src/invoice/route.invoice")
-// router.use("/invoice", invoiceRoute)
+
+const invoiceRoute= require("./API/src/invoice/route.invoice")
+router.use("/invoice",invoiceRoute)
+
+
 
 module.exports = router;
